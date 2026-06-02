@@ -81,7 +81,7 @@ jobs:
           docker run --rm --entrypoint bash "${{ env.IMAGE }}:ci-smoke" -lc '
             set -e
             echo "bash: $(bash --version | head -1)"
-            for t in bash curl jq dig nslookup git fabro; do
+            for t in bash curl jq dig nslookup git gh node npx python python3 pip fabro; do
               if command -v "$t" >/dev/null 2>&1; then echo "ok: $t"; else echo "MISSING: $t"; exit 1; fi
             done
           '

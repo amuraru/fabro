@@ -20,8 +20,11 @@ USER root
 # Pin the public Alpine repos for this build (the base image's hardened repo can
 # require auth). The alpine signing keys are already present in the base. git +
 # busybox net tools (nc/wget/ping/nslookup/ip/...) already exist in the base;
-# this layer adds the gaps: bash, curl, jq, dig (bind-tools). Extend the list as
-# workflows need more (e.g. coreutils findutils gawk python3 nodejs npm).
+# this layer adds the gaps: bash, curl, jq, dig (bind-tools), plus a developer
+# toolchain (gh, node/npx, python). Extend the list as workflows need more
+# (e.g. coreutils findutils gawk go). Alpine ships the Python interpreter as
+# `python3` only, so we add a `python` -> `python3` symlink for workflows that
+# invoke the unversioned name.
 RUN printf '%s\n' \
       https://dl-cdn.alpinelinux.org/alpine/v3.23/main \
       https://dl-cdn.alpinelinux.org/alpine/v3.23/community \
@@ -34,8 +37,14 @@ RUN printf '%s\n' \
       git \
       openssh-client \
       ca-certificates \
+      github-cli \
+      nodejs \
+      npm \
+      python3 \
+      py3-pip \
+ && ln -sf "$(command -v python3)" /usr/bin/python \
  && bash --version | head -1 \
- && command -v curl jq dig
+ && command -v curl jq dig gh node npx python python3 pip
 
 # ENTRYPOINT / CMD / USER are inherited from the base Fabro image (its entrypoint
 # drops privileges; the deploying platform may set its own runAsUser). Do NOT
